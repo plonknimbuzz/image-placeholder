@@ -1,0 +1,8 @@
+Options -Indexes
+RewriteEngine On
+#if your url is localhost/project/image-placeholder/example
+#RewriteBase will be like below:
+RewriteBase /project/image-placeholder/example
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ i.php?p=$1
