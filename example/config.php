@@ -9,5 +9,7 @@ $config = [
 	'fontSize' => [16, 1, 80],
 	'fontAngle' => 0,
 	'fontPath' => '../fonts/',
-	'availableFont' => ['arial', 'calibri']
+	'availableFont' => ['arial', 'calibri'],
+	'imageFormat' => 'png',
+	'imageQuality' => 6
 ];

@@ -3,23 +3,27 @@ class ImagePlaceholder{
 	private $config=[
 			'width' => [100, 1, 1024],
 			'height' => [100, 1, 1024],
-			'text' => '',
+			'text' => 'auto',
 			'backgroundColor' => 'C0C0C0',
 			'fontColor' => 'FFFFFF',
 			'fontFamily' => 'arial',
 			'fontSize' => [16, 1, 80],
 			'fontAngle' => 0,
 			'fontPath' => 'fonts/',
-			'availableFont' => ['arial']
+			'availableFont' => ['arial'],
+			'imageFormat' => 'png',
+			'imageQuality' => 6,
 		];
 	private $width = 100; //0
 	private $height = 100; //1
-	private $text = ''; //2
+	private $text = 'auto'; //2
 	private $backgroundColor = 'C0C0C0'; //3
 	private $fontColor = 'FFFFFF'; //4
 	private $fontFamily = 'arial'; //5
 	private $fontSize = 16; //6
 	private $fontAngle = 0; //7
+	private $imageFormat = 'png'; //8 //png, jpg, gif 
+	private $imageQuality = 6; //9 //range scale 0-9 
 	
 	public function __construct($config)
 	{
@@ -104,6 +108,24 @@ class ImagePlaceholder{
 				$this->config['fontSize'][0] = $config['fontSize'][0];
 		}
 		
+		if(isset($config['imageFormat']) && in_array($config['imageFormat'], ['png', 'gif', 'jpg', 'jpeg']))
+		{
+			$this->config['imageFormat'] = $config['imageFormat'];
+		}
+		else
+		{
+			$this->config['imageFormat'] = 'png';
+		}
+		
+		if(isset($config['imageQuality']))
+		{
+			$val = (int) $config['imageQuality'];
+			if($val >9) $val = 9;
+			elseif($val < 0) $val = 0;
+			$this->config['imageQuality'] = $val;
+		}
+		
+		
 	}
 	
 	public function parseRequest($req)
@@ -181,6 +203,19 @@ class ImagePlaceholder{
 			if($val >= -360 && $val <=360)
 				$this->setVar('fontAngle', $val);
 		}
+		
+		if(isset($req[8]) && in_array($req[8], ['png', 'jpeg', 'jpg', 'gif']))
+		{
+			$this->setVar('imageFormat', $req[8]);
+		}
+		
+		if(isset($req[9]))
+		{
+			$val = (int) $req[9];
+			if($val >9) $val = 9;
+			elseif($val < 0) $val = 0;
+			$this->setVar('imageQuality', $val);
+		}
 	}
 	
 	private function checkHexColor($hex)
@@ -199,8 +234,10 @@ class ImagePlaceholder{
 	
 	private function setVar($var, $val)
 	{
-		if(isset($this->{$var}))
+		if(isset($this->{$var})){
 			$this->{$var} = $val;
+			return $this;
+		}
 		else
 			die("no var: $var found");
 	}
@@ -213,8 +250,7 @@ class ImagePlaceholder{
 			die("no var: $var found");
 	}
 
-	//private function hex2rgb($color)
-	public function hex2rgb($color)
+	private function hex2rgb($color)
 	{
 		$color = preg_replace("/[^abcdef0-9]/i", "", $color);
 		if (strlen($color) == 6)
@@ -230,7 +266,7 @@ class ImagePlaceholder{
 		return false;
 	}
 	
-	private function createImage()
+	private function createImage($format='png', $quality=6)
 	{
 		$font = $this->config['fontPath'] . $this->fontFamily .'.ttf';
 		$image = ImageCreate($this->width, $this->height);  
@@ -254,8 +290,19 @@ class ImagePlaceholder{
 		
 		//write text to image
 		imagettftext($image, $this->fontSize, $this->fontAngle, $x, $y, $fontColor, $font, $this->text);
-		header("Content-Type: image/png"); 
-		imagepng($image);
+		
+		$format = strtolower($format);
+		
+		if($format == 'jpeg' || $format == 'jpg'){
+			header("Content-Type: image/jpeg");
+			imagejpeg($image, NULL, ($quality+1)*10);
+		}elseif($format=='gif'){
+			header("Content-Type: image/gif");
+			imagegif($image);
+		}else{
+			header("Content-Type: image/png");
+			imagepng($image, NULL, $quality);
+		}
 		ImageDestroy($image);
 	}
 	

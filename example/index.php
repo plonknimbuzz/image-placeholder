@@ -91,6 +91,25 @@
 									<em id="angleTip">Tip: If you hold shift,<br>you can snap to 15 degree increments</em>	
 								</div>
 							</div>
+							<div class="row">
+								<div class="col-xs-6">
+									<div class="form-group">
+										<label for="imageFormat">Image Format</label>
+										<select class="form-control" name="imageFormat" id="imageFormat" >
+											<option value="">Select Format</option>
+											<option value="png">PNG</option>
+											<option value="gif">GIF</option>
+											<option value="jpeg">JPEG</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-xs-6">
+									<div class="form-group">
+										<label for="imageQuality">Image Quality</label>
+										<input class="form-control" name="imageQuality" id="imageQuality" type="number" min="0" max="9" placeholder="6">
+									</div>
+								</div>
+							</div>
 						</div>
 						<div class="col-md-12">
 							<input type="submit" class="btn btn-primary" value="Submit"> 
@@ -163,7 +182,16 @@
 				var url = splitUrl.join('/');
 				var path = [];
 				var status = false;
-				if($('#fontAngle').val() !='') {
+				
+				if($('#imageQuality').val() !='') {
+					path.unshift($('#imageQuality').val()); 
+					status=true;
+				}
+				if($('#imageFormat').val() !='' || status) {
+					path.unshift($('#imageFormat').val()); 
+					status=true;
+				}
+				if($('#fontAngle').val() !='' || status) {
 					path.unshift($('#fontAngle').val()); 
 					status=true;
 				}
